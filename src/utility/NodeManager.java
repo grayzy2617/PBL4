@@ -1,4 +1,51 @@
 package utility;
 
+import Model.Node;
+import Model.Link;
+
+import javax.xml.crypto.Data;
+import java.util.List;
+import java.util.Random;
+import java.util.ArrayList;
+
 public class NodeManager {
+    private List<Node> allNodes;
+    private final List<Link> allLinks;
+
+    public NodeManager() {
+        // load data at once
+        this.allNodes = DataLoader.loadNodes("src/Client/nodes.json");
+        this.allLinks = DataLoader.loadLinks("src/Client/links.json");
+        if (allNodes != null) {
+            for (Node node : allNodes) {
+                node.initializeBudget();
+            }
+        }
+    }
+
+    public Node chooseRandomNode() {
+
+        if (allNodes.isEmpty()) {
+            System.err.println("Error: The list is empty!!!");
+            return null;
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(allNodes.size());
+        return allNodes.get(randomIndex);
+    }
+
+    public Node findNodeById(String id) {
+        for (Node n : allNodes) {
+            if (n.getId().equals(id))
+                return n;
+        }
+        return null;
+    }
+
+    public List<Link> getAllLinks() {
+        return allLinks;
+    }
 }
+
+
+

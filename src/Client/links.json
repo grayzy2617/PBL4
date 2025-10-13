@@ -1,0 +1,15 @@
+[
+  { "tx": "SAT1", "rx": "GROUND1", "distanceKm": 800, "frequencyMHz": 12000, "B_alloc": 20000000, "delta_priority": 0.98 },
+  { "tx": "SAT1", "rx": "SHIP1",   "distanceKm": 1000, "frequencyMHz": 12000, "B_alloc": 1500000, "delta_priority": 0.85 },
+  { "tx": "SAT1", "rx": "UAV1",    "distanceKm": 600, "frequencyMHz": 12000, "B_alloc": 3000000, "delta_priority": 0.80 },
+
+  { "tx": "SAT2", "rx": "GROUND2", "distanceKm": 850, "frequencyMHz": 14000, "B_alloc": 25000000, "delta_priority": 0.95 },
+  { "tx": "SAT2", "rx": "SHIP2",   "distanceKm": 1200, "frequencyMHz": 14000, "B_alloc": 2000000, "delta_priority": 0.80 },
+  { "tx": "SAT2", "rx": "UAV2",    "distanceKm": 650, "frequencyMHz": 14000, "B_alloc": 2500000, "delta_priority": 0.75 },
+
+  { "tx": "UAV1", "rx": "GROUND1", "distanceKm": 50, "frequencyMHz": 5000, "B_alloc": 1000000, "delta_priority": 0.70 },
+  { "tx": "UAV1", "rx": "SHIP1",   "distanceKm": 120, "frequencyMHz": 5000, "B_alloc": 800000, "delta_priority": 0.60 },
+
+  { "tx": "UAV2", "rx": "GROUND2", "distanceKm": 70, "frequencyMHz": 6000, "B_alloc": 1500000, "delta_priority": 0.75 },
+  { "tx": "UAV2", "rx": "GROUND3", "distanceKm": 60, "frequencyMHz": 6000, "B_alloc": 1000000, "delta_priority": 0.50 }
+]
