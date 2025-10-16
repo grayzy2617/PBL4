@@ -1,0 +1,110 @@
+[
+  {
+    "id": "SAT1",
+    "Pt": 50,
+    "Gt": 25,
+    "Gr": 20,
+    "B_max": 100000000,
+    "T": 500,
+    "Tproc": 0.004,
+    "budget_max": 5000,
+    "currentBudget": 5000,
+    "acquiredResources": 0
+  },
+  {
+    "id": "SAT2",
+    "Pt": 48,
+    "Gt": 27,
+    "Gr": 22,
+    "B_max": 120000000,
+    "T": 520,
+    "Tproc": 0.004,
+    "budget_max": 4800,
+    "currentBudget": 4800,
+    "acquiredResources": 0
+  },
+  {
+    "id": "UAV1",
+    "Pt": 32,
+    "Gt": 10,
+    "Gr": 10,
+    "B_max": 5000000,
+    "T": 350,
+    "Tproc": 0.002,
+    "budget_max": 1200,
+    "currentBudget": 1200,
+    "acquiredResources": 0
+  },
+  {
+    "id": "UAV2",
+    "Pt": 30,
+    "Gt": 8,
+    "Gr": 8,
+    "B_max": 3000000,
+    "T": 360,
+    "Tproc": 0.002,
+    "budget_max": 1000,
+    "currentBudget": 1000,
+    "acquiredResources": 0
+  },
+  {
+    "id": "GROUND1",
+    "Pt": 45,
+    "Gt": 35,
+    "Gr": 40,
+    "B_max": 50000000,
+    "T": 290,
+    "Tproc": 0.001,
+    "budget_max": 3000,
+    "currentBudget": 3000,
+    "acquiredResources": 0
+  },
+  {
+    "id": "GROUND2",
+    "Pt": 44,
+    "Gt": 33,
+    "Gr": 38,
+    "B_max": 60000000,
+    "T": 300,
+    "Tproc": 0.001,
+    "budget_max": 3200,
+    "currentBudget": 3200,
+    "acquiredResources": 0
+  },
+  {
+    "id": "GROUND3",
+    "Pt": 38,
+    "Gt": 18,
+    "Gr": 20,
+    "B_max": 20000000,
+    "T": 320,
+    "Tproc": 0.001,
+    "budget_max": 2500,
+    "currentBudget": 2500,
+    "acquiredResources": 0
+  },
+  {
+    "id": "SHIP1",
+    "Pt": 28,
+    "Gt": 8,
+    "Gr": 8,
+    "B_max": 2000000,
+    "T": 400,
+    "Tproc": 0.006,
+    "budget_max": 800,
+    "currentBudget": 800,
+    "acquiredResources": 0
+  },
+  {
+    "id": "SHIP2",
+    "Pt": 26,
+    "Gt": 7,
+    "Gr": 7,
+    "B_max": 2500000,
+    "T": 420,
+    "Tproc": 0.006,
+    "budget_max": 900,
+    "currentBudget": 900,
+    "acquiredResources": 0
+  }
+]

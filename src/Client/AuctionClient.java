@@ -1,101 +1,148 @@
 package Client;
 
+import Common.AuctionMessage;
+
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
-public class AuctionClient {
-
+import Interface.OnDataReceivedListener;
+public class AuctionClient  implements OnDataReceivedListener {
     private String clientId;
-    private double budget;
-    private double acquiredResources;
-    AuctionClientListener listener;
-    private Strategy  strategy;
-
-    private static final double BASE_BUDGET = 100.0;
+    private Node node;
+    private AuctionClientListener listener;
+    private Socket socket;
     private static final String url = "localhost";
     private static final int port = 5002;
 
     public AuctionClient(int clientId) {
-        this.acquiredResources=0;// khởi tạo tài nguyên đã mua
-        String temp=  randomId();
-        this.budget = allocateBudget(temp);//  cái budget này là do sever cấp
-        this.clientId=  temp + clientId;
+        this.clientId = "Client" + clientId;
+         this.node = NodeManager.getInstance().chooseRandomNode();
     }
-    // Random chọn 1 trong 4 loại node
-    private String randomId() {
-        String[] types = {"SP", "A", "GR", "S"};
-        Random rand = new Random();
-        int index = rand.nextInt(types.length);
-        return types[index];
-    }
-    // Cấp phát budget dựa vào loại node
-    private double allocateBudget(String id) {
-        switch (id) {
-            case "SP": return BASE_BUDGET * 1.2;
-            case "A":  return BASE_BUDGET * 1.0;
-            case "GR": return BASE_BUDGET * 0.9;
-            case "S":  return BASE_BUDGET * 0.8;
-            default:   return BASE_BUDGET; // fallback
-        }
-    }
-    public  void startConnSever ( AuctionClientUI ui) {
+
+    public void startConnSever(AuctionClientUI ui) //
+    {
         try {
-            Socket socket = new Socket(url, port);
+            this.socket = new Socket(url, port);
             System.out.println("Connected to server at " + url + ":" + port);
-            // Khởi tạo luồng lắng nghe từ server
-            this.listener = new AuctionClientListener(socket, ui);
+           
+            this.listener = new AuctionClientListener(this, ui);
             new Thread(listener).start();
-
-
         } catch (Exception e) {
-            System.out.println("err conn");
+            e.printStackTrace();
         }
     }
-
-
     public void joinAuction(String auctionId) {
         // gửi yêu cầu tham gia phiên đấu giá lên server
-        
+    }
 
+    public void getNodeFromServer() {
+
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(this.socket.getOutputStream());
+
+            AuctionMessage joinMessage = new AuctionMessage("Connected");
+            joinMessage.addParam("ClientID", this.clientId);
+
+            out.writeObject(joinMessage);
+            out.flush();
+
+        } catch (Exception e) {
+            System.out.println("err get node");
+        }
     }
 
     public void sendBid(double amount) {
-        // gửi giá thầu lên server
+
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(this.socket.getOutputStream());
+
+            AuctionMessage bidMessage = new AuctionMessage("BID");
+            bidMessage.addParam("bid", String.valueOf(amount));
+            bidMessage.addParam("ClientID", this.clientId);
+            // và các tham số khác ở đây
+
+            out.writeObject(bidMessage);
+            out.flush();
+
+        } catch (Exception e) {
+            System.out.println("err send bid");
+        }
+    }
+       @Override
+    public void onDataReceived(Node node) {
+        this.node = node;
+        System.out.println("Received node data: "+ node.getId());
+    }
+    // filter the links related to this node
+    public List<Link> getMyLinks() {
+        List<Link> myLinks = new ArrayList<>();
+        for (Link link : NodeManager.getInstance().getAllLinks()) {
+            if (link.getTx().equals(this.node.getId()) || link.getRx().equals(this.node.getId())) {
+                myLinks.add(link);
+            }
+        }
+        return myLinks;
     }
 
-    public void receiveMessage(String msg) {
-        System.out.println("From server: " + msg);
+   // tính SNR, latency, value, bid cho các link của node này
+    public void analyzeLinks() {
+        List<Link> myLinks = getMyLinks();
+        for (Link link : myLinks) {
+            Node txNode = NodeManager.getInstance().findNodeById(link.getTx());
+            Node rxNode = NodeManager.getInstance().findNodeById(link.getRx());
+
+            double snr = Utility.computeSNR(
+                    txNode.getPt(),
+                    txNode.getGt(),
+                    rxNode.getGr(),
+                    link.getDistanceKm(),
+                    link.getFrequencyMHz(),
+                    rxNode.getT(),
+                    link.getB_alloc()
+            );
+            double latency = Utility.computeLatency(link.getDistanceKm(), rxNode.getT());
+
+            double snrNorm = Utility.normalizeSNR(snr);
+            double latNorm = Utility.normalizeLatency(latency);
+            double alpha = Utility.computeAlpha(snrNorm, latNorm);
+            double value = Utility.computeValue(snr, latency);
+            // double Bid = Utility.calculateBid(
+            //         value,
+            //         n,// cần lấy từ server
+            //         this.node.getCurrentBudget(),     // Ngân sách còn lại
+            //         this.node.getBudget_max(),         // Ngân sách tối đa (B_max)
+            //         link.getPriority(),         // Delta Priority của Link
+            //         link.getBidMin()                // Giá sàn cần ấy từ server
+
+            // );
+
+            System.out.printf(
+                    "Link %s -> %s:\n  SNR = %.2f dB, Latency = %.3f ms\n  Norm(SNR)=%.3f, Norm(Lat)=%.3f, Alpha=%.3f\n  ==> Value = %.3f\n\n",
+                    txNode.getId(), rxNode.getId(),
+                    snr, latency * 1000,
+                    snrNorm, latNorm, alpha, value
+            );
+        }
     }
+
+
+    //-----------------Get,Set-----------------------//
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
-
-    public void setBudget(double budget) {
-        this.budget = budget;
+    public String getClientId() {
+        return clientId;
     }
-
-    public double getAcquiredResources() {
-        return acquiredResources;
+ public Node getNode() {
+        return node;
     }
-
-    public void setAcquiredResources(double acquiredResources) {
-        this.acquiredResources = acquiredResources;
+    public void setNode(Node node) {
+        this.node = node;
     }
-
-    public Strategy getStrategy() {
-        return strategy;
+    public Socket getSocket() {
+        return socket;
     }
-
-    public void setStrategy(Strategy strategy) {
-        this.strategy = strategy;
-    }
-
-
-
-    public String getClientId() {return clientId;}
-    public double getBudget() {return budget;}
-
-
-
-
+ 
 }

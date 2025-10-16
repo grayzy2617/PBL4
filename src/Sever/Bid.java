@@ -1,6 +1,7 @@
 package Sever;
 
 public class Bid {
+    private String id;
     private String clientId;
     private double value;
     // thuộc session nào
