@@ -1,316 +1,295 @@
 package Client;
 
-
 import Common.AuctionMessage;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-// removed unused import
-import java.awt.event.ActionListener;
-// removed unused import
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
 import Interface.AuctionEventListener;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.util.List;
+
+
+
 public class AuctionClientUI extends JFrame implements AuctionEventListener {
-    private AuctionClient client;
-    private static int clientCount = 0;
-    private JLabel lbResourcesHeld;
-    private JLabel lbParticipants = new JLabel("Participants: ");
-    private JLabel lbYourBid = new JLabel("Your bid ($): ");
-    private JLabel lbBudget;
 
-    private JTextField bidField;
-    private JTextField participantsField;
-    private JButton btnSendBid;
+ private AuctionClient client;
+private static int clientCount = 0;
 
-    private JTable auctionTable;
-    private DefaultTableModel auctionTableModel;
+private JLabel lbResourcesHeld;
+private JLabel lbBudget;
+private JLabel lbParticipants;
+private double reservePrice;
+private String idSession;
+private int participants = 0;
+private double bidAmount = 0.0;
+private JTable auctionTable;
+private DefaultTableModel auctionTableModel;
 
-    // private double resourcesHeld = 0.0; // unused
-    private double budget = 200.0;
-    public static void main(String[] args) {
-       new AuctionClientUI();
-        
-    }
-    public AuctionClientUI() {
-        client = new AuctionClient(++clientCount);
-        client.startConnSever(this);
-        initComponents();
-        System.out.println("Client ID: " + client.getClientId() + ", Budget: $" + client.getNode().getCurrentBudget());
-    }
+private JTable bidTable;
+private DefaultTableModel bidTableModel;
+private JButton btnSendBid;
 
-    private void initComponents() {
-        makeTopPanel();
-    makeCenterPanel();
+private JPanel topPanel;
+private JPanel centerPanel;
+private JPanel bidPanel;
+
+
+public static void main(String[] args) {
+    new AuctionClientUI();
+}
+
+public AuctionClientUI() {
+    client = new AuctionClient(++clientCount);
+    client.startConnSever(this);
+    initComponents();
+    System.out.println("Client ID: " + client.getClientId() +
+            ", Budget: $" + client.getNode().getCurrentBudget());
+}
+
+private void initComponents() {
+    setLayout(new BorderLayout());
+    makeTopPanel();
     makeAuctionTablePanel();
-        initLookAtAndFeel();
-        hideAuctionControls();
+    initWindow();
+}
 
+// ====== Top Panel (Resources - Participants - Budget) ======
+private void makeTopPanel() {
+    topPanel = new JPanel(new BorderLayout());
+    topPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+
+    lbResourcesHeld = new JLabel("Resources: " + client.getNode().getAcquiredResources() + " Mbps");
+    lbResourcesHeld.setFont(lbResourcesHeld.getFont().deriveFont(Font.BOLD, 14f));
+    topPanel.add(lbResourcesHeld, BorderLayout.WEST);
+
+    lbParticipants = new JLabel("Participants: 0", SwingConstants.CENTER);
+    lbParticipants.setFont(lbParticipants.getFont().deriveFont(Font.BOLD, 14f));
+    topPanel.add(lbParticipants, BorderLayout.CENTER);
+
+    lbBudget = new JLabel("Budget: $" + client.getNode().getCurrentBudget());
+    lbBudget.setFont(lbBudget.getFont().deriveFont(Font.BOLD, 14f));
+    topPanel.add(lbBudget, BorderLayout.EAST);
+
+    add(topPanel, BorderLayout.NORTH);
+}
+
+// ====== Bảng đấu giá chính ======
+private void makeAuctionTablePanel() {
+    String[] columnNames = {"ItemId", "Capacity", "ReservePrice", "Signal", "Time Left", "Tham gia"};
+    auctionTableModel = new DefaultTableModel(columnNames, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return column == 5;
+        }
+    };
+
+    auctionTable = new JTable(auctionTableModel);
+    auctionTable.setRowHeight(28);
+    auctionTable.getColumnModel().getColumn(5)
+            .setCellRenderer(new ButtonRenderer());
+    auctionTable.getColumnModel().getColumn(5)
+            .setCellEditor(new ButtonEditor(new JCheckBox()));
+
+    JScrollPane scrollPane = new JScrollPane(auctionTable);
+    scrollPane.setPreferredSize(new Dimension(550, 180));
+    add(scrollPane, BorderLayout.CENTER);
+}
+
+private void initWindow() {
+    setTitle("Auction Client");
+    setSize(640, 480);
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setLocationRelativeTo(null);
+    setVisible(true);
+}
+
+// =================== Khi có phiên đấu giá mới ===================
+@Override
+public void onNewAuction(AuctionMessage message) {
+    if (message == null) return;
+
+    String itemId = (String) message.getParam("ItemId");
+    Double capacity = (Double) message.getParam("Capacity");
+    String reservePrice = (String) message.getParam("ReservePrice");
+    this.idSession = (String) message.getParam("idSession");
+    System.out.println("idSession in UI: " + this.idSession + ", ItemId: " + itemId);
+    this.reservePrice = Double.parseDouble(reservePrice);
+    Integer participants = (Integer) message.getParam("participants");
+    this.participants = participants;
+        lbParticipants.setText("Participants: " + String.valueOf(participants));
+    System.out.println(participants);
+    addAuctionRow(itemId, capacity, reservePrice);
+}
+
+@Override
+public void onAuctionResult(AuctionMessage message) {
+    if (message == null) return;
+
+    String winnerId = (String) message.getParam("WinnerId");
+    Double winningBid = (Double) message.getParam("WinningBid");
+    Double remainingCapacity = (Double) message.getParam("RemainingCapacity");
+
+    String resultMsg;
+    if (winnerId != null && winnerId.equals(client.getNode().getId())) {
+        resultMsg = "Chúc mừng! Bạn đã thắng phiên đấu giá với bid: $" + winningBid;
+        client.getNode().setAcquiredResources(
+                client.getNode().getAcquiredResources() + winningBid 
+        );
+        lbResourcesHeld.setText("Resources: " + client.getNode().getAcquiredResources() + " Mbps");
+    } else if (winnerId != null) {
+        resultMsg = "Phiên đấu giá kết thúc. Người thắng: " + winnerId +
+                " với bid: $" + winningBid;
+        client.getNode().setCurrentBudget(client.getNode().getCurrentBudget() + this.bidAmount);
+        lbBudget.setText("Budget: $" + client.getNode().getCurrentBudget());
+    } else {
+        resultMsg = "Phiên đấu giá kết thúc. Không có người thắng.";
     }
-    public void sendBid() {
-        btnSendBid.addActionListener((ActionEvent e) -> {
-            String bidText = bidField.getText().trim();
-            try {
-                double bidAmount = Double.parseDouble(bidText);
-                if (bidValidate(bidAmount)) {
-                    client.sendBid(bidAmount);// thêm link chỗ này
-                    JOptionPane.showMessageDialog(
-                            this,                           // component cha (nếu trong JFrame, dùng this)
-                            "Đã gửi bid thành công!",       // nội dung thông báo
-                            "Thông báo",                    // tiêu đề của hộp thoại
-                            JOptionPane.INFORMATION_MESSAGE // icon (dấu i xanh)
-                    );
-                    budget -= bidAmount;
-                    lbBudget.setText("Budget: $" + client.getNode().getCurrentBudget());
-                    bidField.setText("");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Invalid bid amount.");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Please enter a valid number.");
+
+    JOptionPane.showMessageDialog(this, resultMsg, "Kết quả đấu giá",
+            JOptionPane.INFORMATION_MESSAGE);
+
+}
+private void addAuctionRow(String itemId, Double capacity, String reservePrice ) {
+    Object[] row = {itemId, capacity, reservePrice, "Strong", "30", "Tham gia"};
+    auctionTableModel.addRow(row);
+    startCountdownTimer(auctionTableModel.getRowCount() - 1);
+}
+
+private void startCountdownTimer(int rowIndex) {
+    final int[] timeLeft = {30};
+    Timer timer = new Timer(1000, e -> {
+        timeLeft[0]--;
+        if (timeLeft[0] >= 0)
+            auctionTableModel.setValueAt(timeLeft[0], rowIndex, 4);
+        if (timeLeft[0] <= 0) {
+            ((Timer) e.getSource()).stop();
+            if (!auctionTableModel.getValueAt(rowIndex, 5).equals("Hết hạn")) {
+                auctionTableModel.setValueAt("Hết hạn", rowIndex, 5);
             }
-        });
-    }
+        }
+    });
+    timer.start();
+}
+
+// =================== Button Renderer/Editor ===================
+class ButtonRenderer extends JButton implements TableCellRenderer {
+    public ButtonRenderer() { setOpaque(true); }
     @Override
-    public void onNewAuction(  AuctionMessage message) {
-        System.out.println("Received new auction");
-        if (message == null) return;
-        String itemId = (String) message.getParam("ItemId");
-        Double capacity = (Double) message.getParam("Capacity");
-        SwingUtilities.invokeLater(() -> {
-            Double reservePrice = null;
-            if (message.getParam("ReservePrice") != null) {
-                reservePrice = (Double) message.getParam("ReservePrice");
+    public Component getTableCellRendererComponent(JTable table, Object value,
+                                                   boolean isSelected, boolean hasFocus, int row, int col) {
+        setText(value == null ? "" : value.toString());
+        return this;
+    }
+}
+
+class ButtonEditor extends DefaultCellEditor {
+    protected JButton button;
+    private String label;
+    private int editingRow;
+
+    public ButtonEditor(JCheckBox checkBox) {
+        super(checkBox);
+        button = new JButton();
+        button.setOpaque(true);
+        button.addActionListener(e -> {
+
+            fireEditingStopped();
+            if (!"Hết hạn".equals(auctionTable.getValueAt(editingRow, 5))) {
+                showBidPanel(); // hiển thị bảng gửi bid
+            } else {
+                JOptionPane.showMessageDialog(null, "Phiên này đã hết thời gian tham gia!");
             }
-            final JDialog dialog = new JDialog(this, message.getTitle(), true);
-            dialog.setLayout(new BorderLayout());
-
-            JLabel label = new JLabel("<html><br>" + message + "<br><br>Time left: <span id='timer'>30</span> seconds</html>");
-            label.setFont(label.getFont().deriveFont(Font.PLAIN, 14f));
-            dialog.add(label, BorderLayout.CENTER);
-
-            JPanel buttonPanel = new JPanel();
-            JButton joinButton = new JButton("Join");
-            JButton cancelButton = new JButton("Cancel");
-            buttonPanel.add(joinButton);
-            buttonPanel.add(cancelButton);
-            dialog.add(buttonPanel, BorderLayout.SOUTH);
-
-            final int[] timeLeft = {30};
-            Timer timer = new Timer(1000, null);
-            timer.addActionListener(e -> {
-                timeLeft[0]--;
-                label.setText("<html><br>" +"ID: "+itemId+ ", Capacity"+ capacity + "<br><br>Time left: <span id='timer'>" + timeLeft[0] + "</span> seconds</html>");
-                if (timeLeft[0] <= 0) {
-                    timer.stop();
-                    dialog.dispose();
-                }
-            });
-
-            joinButton.addActionListener(e -> {
-                timer.stop();
-                dialog.dispose();
-                client.joinAuction("Session1");
-                showAuctionControls();
-            });
-
-            cancelButton.addActionListener(e -> {
-                timer.stop();
-                dialog.dispose();
-                hideAuctionControls();
-            });
-
-            dialog.setSize(350, 180);
-            dialog.setLocationRelativeTo(this);
-            timer.start();
-            dialog.setVisible(true);
-            // Add auction info to table
-            addAuctionRow(itemId, capacity, reservePrice);
         });
     }
 
-    private void makeAuctionTablePanel() {
-        // Table columns: ItemId, Capacity, ReservePrice, signal, Tham gia
-        String[] columnNames = {"ItemId", "Capacity", "ReservePrice", "signal", "Tham gia"};
-        auctionTableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // only the 'Tham gia' button column is editable (to receive clicks)
-                return column == 4;
-            }
-        };
-        auctionTable = new JTable(auctionTableModel);
-        // set preferred widths
-        auctionTable.getColumnModel().getColumn(0).setPreferredWidth(100);
-        auctionTable.getColumnModel().getColumn(1).setPreferredWidth(80);
-        auctionTable.getColumnModel().getColumn(2).setPreferredWidth(100);
-        auctionTable.getColumnModel().getColumn(3).setPreferredWidth(80);
-        auctionTable.getColumnModel().getColumn(4).setPreferredWidth(80);
-
-        // Add button renderer/editor for 'Tham gia' column
-        auctionTable.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
-        auctionTable.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(new JCheckBox()));
-
-        JScrollPane scrollPane = new JScrollPane(auctionTable);
-        scrollPane.setPreferredSize(new Dimension(480, 120));
-        add(scrollPane, BorderLayout.SOUTH);
+    @Override
+    public Component getTableCellEditorComponent(JTable table, Object value,
+                                                 boolean isSelected, int row, int col) {
+        label = (value == null) ? "" : value.toString();
+        button.setText(label);
+        editingRow = row;
+        return button;
     }
 
-    private void addAuctionRow(String itemId, Double capacity, Double reservePrice) {
-        Object[] row = new Object[5];
-        row[0] = itemId;
-        row[1] = capacity;
-        row[2] = reservePrice;
-        row[3] = "--"; // signal placeholder
-        row[4] = "Tham gia"; // button label (cell renderer will draw it)
-        auctionTableModel.addRow(row);
+    @Override
+    public Object getCellEditorValue() { return label; }
+}
+
+// =================== Giao diện gửi Bid ===================
+private void showBidPanel() {
+    if (bidPanel != null) remove(bidPanel);
+
+    bidPanel = new JPanel(new BorderLayout());
+    bidPanel.setBorder(BorderFactory.createTitledBorder("Bidding Panel"));
+
+    String[] cols = {"Id", "Tx", "Rx", "Signal", "Value", "Bid"};
+    bidTableModel = new DefaultTableModel(cols, 0);
+    bidTable = new JTable(bidTableModel);
+    bidTable.setRowHeight(26);
+
+   System.out.println(client.getNode().getId());
+   List<Link> myLinks = NodeManager.getInstance().getLinks(client.getNode().getId());
+   System.out.println(myLinks.size());
+   for (Link link : myLinks) {
+       Double Latency = Utility.computeLatency(link.getDistanceKm(), client.getNode().getTproc());
+       Double SNR = Utility.computeSNR(client.getNode().getPt(), client.getNode().getGt(), client.getNode().getGr(),
+               link.getDistanceKm(), link.getFrequencyMHz(), client.getNode().getT(), link.getB_alloc());
+       String signal = String.format("%.4f", Latency*1000) + " ms, SNR: " + String.format("%.2f", SNR) + " dB";
+       String value = String.valueOf(Utility.computeValue(SNR, Latency));
+       String bid = String.valueOf(Utility.calculateBid(Double.valueOf(value),this.participants,client.getNode().getCurrentBudget(),client.getNode().getBudget_max(), link.getPriority(), this.reservePrice));
+       bidTableModel.addRow(new Object[]{
+                link.getId(),
+                link.getTx(),
+                link.getRx(),
+                 signal,
+               value,
+                bid
+         });
+
+}
+     
+    JScrollPane bidScroll = new JScrollPane(bidTable);
+    bidScroll.setPreferredSize(new Dimension(550, 120));
+    bidPanel.add(bidScroll, BorderLayout.CENTER);
+
+    // Nút gửi bid
+    btnSendBid = new JButton("Send Bid");
+    btnSendBid.addActionListener(e -> handleSendBid());
+    JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    btnPanel.add(btnSendBid);
+
+    bidPanel.add(btnPanel, BorderLayout.SOUTH);
+
+    add(bidPanel, BorderLayout.SOUTH);
+    revalidate();
+    repaint();
+}
+
+private void handleSendBid() {
+    int selectedRow = bidTable.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Hãy chọn 1 dòng để gửi bid!");
+        return;
     }
 
-    // Button renderer
-    class ButtonRenderer extends JButton implements TableCellRenderer {
-        public ButtonRenderer() {
-            setOpaque(true);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
-            setText(value == null ? "" : value.toString());
-            return this;
-        }
+    String bidText = (String) bidTableModel.getValueAt(selectedRow, 5);
+    String linkId = (String) bidTableModel.getValueAt(selectedRow, 0);
+    try {
+        double bidAmount = Double.parseDouble(bidText);
+        this.bidAmount = bidAmount;
+            client.sendBid(bidAmount, linkId , this.idSession);
+            JOptionPane.showMessageDialog(this, "Đã gửi bid thành công!", "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            Double budget = client.getNode().getCurrentBudget() - bidAmount;
+            client.getNode().setCurrentBudget(budget);
+            lbBudget.setText("Budget: $" + client.getNode().getCurrentBudget());
+        
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(this, "Please enter a valid number.");
     }
+}
 
-    // Button editor to handle clicks
-    class ButtonEditor extends DefaultCellEditor {
-        protected JButton button;
-        private String label;
-        private int editingRow;
-
-        public ButtonEditor(JCheckBox checkBox) {
-            super(checkBox);
-            button = new JButton();
-            button.setOpaque(true);
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    fireEditingStopped();
-                    // perform join action
-                    String itemId = (String) auctionTable.getValueAt(editingRow, 0);
-                    client.joinAuction(itemId);
-                    showAuctionControls();
-                }
-            });
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected, int row, int column) {
-            label = (value == null) ? "" : value.toString();
-            button.setText(label);
-            editingRow = row;
-            return button;
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return label;
-        }
-
-        @Override
-        public boolean stopCellEditing() {
-            return super.stopCellEditing();
-        }
-    }
-
-    public boolean bidValidate(double amount) {
-        if (amount > 0 && amount <= budget) {
-            return true;
-        }
-        return false;
-    }
-
-    public void makeTopPanel() {
-        // ---------- TOP: chứa 2 label (trái / phải) ----------
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
-
-        lbResourcesHeld = new JLabel("Resources: "  + client.getNode().getAcquiredResources() + " Mbps");
-        lbResourcesHeld.setFont(lbResourcesHeld.getFont().deriveFont(Font.BOLD, 14f));
-        topPanel.add(lbResourcesHeld, BorderLayout.WEST);
-
-        lbBudget = new JLabel("Budget: $" + client.getNode().getCurrentBudget());
-        lbBudget.setFont(lbBudget.getFont().deriveFont(Font.BOLD, 14f));
-        topPanel.add(lbBudget, BorderLayout.EAST);
-
-        add(topPanel, BorderLayout.NORTH);
-    }
-
-    public void makeCenterPanel() {
-        // ---------- CENTER: form gửi bid ----------
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // Hàng 0: Participants
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        centerPanel.add(lbParticipants, gbc);
-
-        gbc.gridx = 1;
-        participantsField = new JTextField(10);
-        participantsField.setEditable(false);
-        participantsField.setText("0");
-        centerPanel.add(participantsField, gbc);
-
-        // Hàng 1: Your bid
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        centerPanel.add(lbYourBid, gbc);
-
-        gbc.gridx = 1;
-        bidField = new JTextField(10);
-        centerPanel.add(bidField, gbc);
-
-        // Hàng 2: Button
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        btnSendBid = new JButton("Send Bid");
-        centerPanel.add(btnSendBid, gbc);
-
-        add(centerPanel, BorderLayout.CENTER);
-    }
-
-    public void initLookAtAndFeel() {
-        setTitle("Auction Client");
-        setSize(520, 360);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setVisible(true);
-    }
-
-    public void hideAuctionControls() {
-        bidField.setVisible(false);
-        btnSendBid.setVisible(false);
-        participantsField.setVisible(false);
-        lbParticipants.setVisible(false);
-
-        lbYourBid.setVisible(false);
-    }
-
-    public void showAuctionControls() {
-        bidField.setVisible(true);
-        btnSendBid.setVisible(true);
-        participantsField.setVisible(true);
-        lbParticipants.setVisible(true);
-        lbYourBid.setVisible(true);
-    }
 
 
 }
-// AuctionEventListener.java
-
-

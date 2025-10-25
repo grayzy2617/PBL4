@@ -91,7 +91,7 @@ public class Utility {
         double delta = delta_comp * delta_budget * priority;
 
         // 4. TÍNH BID CƠ SỞ (Bid = V_i_L * delta_i_L)
-        double Bid_base = value * delta;
+        double Bid_base = value * delta*5000;
 
         // 5. BID CUỐI CÙNG (Max(Bid Cơ sở, Giá sàn))
         // Đảm bảo Bid không thấp hơn giá sàn

@@ -9,22 +9,34 @@ public class Node {
     private double Gr;// độ lợi anten nhận
     private double B_max;// băng thông tối đa
     private double T;// độ trễ tối đa
+    private double Tproc;// thời gian xử lý
     private double budget_max;// ngân sách tối đa
     private double currentBudget;// ngân sách hiện tại
     private double acquiredResources = 0;// tài nguyên đã được cấp phát
 
-    public Node ( String id, double Pt, double Gt, double Gr, double B_max, double T, double budget_max, double currentBudget, double acquiredResources) {
+    public Node(String id, double Pt, double Gt, double Gr, double B_max, double T, double Tproc, double budget_max,
+            double currentBudget, double acquiredResources) {
         this.id = id;
         this.Pt = Pt;
         this.Gt = Gt;
         this.Gr = Gr;
         this.B_max = B_max;
         this.T = T;
+        this.Tproc = Tproc;
+
         this.budget_max = budget_max;
         this.currentBudget = currentBudget;
         this.acquiredResources = acquiredResources;
     }
+  
+    public double getTproc() {
+        return Tproc;
+    }
 
+    public void setTproc(double tproc) {
+        this.Tproc = tproc;
+    }
+    
     public String getId() {
         return id;
     }

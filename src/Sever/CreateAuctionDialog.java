@@ -41,13 +41,15 @@ public class CreateAuctionDialog extends JDialog {
                 } else if (resource > AuctionServer.getInstance().getCurrentCapacity()) {
                     JOptionPane.showMessageDialog(this, "Not enough resources available.");
                 } else {
+                    
                     double avg_bid = DatabaseManager.getInstance().getAverageBidAmount();
+                    
                     if (avg_bid == 0.00) {
                         System.out.println("avg bid = 0");
-                        reservePriceField.setText("1000");
+                        reservePriceField.setText("500");
                     } else {
                         System.out.println("avg bid = " + avg_bid);
-                        reservePriceField.setText(String.valueOf(avg_bid * 0.8));
+                        reservePriceField.setText(String.format("%.2f", avg_bid * 0.8));
                     }
 
                 }
@@ -67,12 +69,15 @@ public class CreateAuctionDialog extends JDialog {
             }
             dispose();
             Item item = new Item(Double.parseDouble(resourceStr), reserveStr);
-            // insert into DB and set generated id
-            String generatedId = DatabaseManager.getInstance().insertItem(item.getCapacity(), item.getReservePrice());
-            if (generatedId != null) {
-                item.setId(generatedId);
-            }
-            AuctionServer.getInstance().startAuctionSession(item);
+            String id = DatabaseManager.getInstance().generateId("item");
+            item.setId(id);
+            System.out.println("Item ID before insert: " + item.getId());
+      if(!DatabaseManager.getInstance().insertItem(item)) {
+        JOptionPane.showMessageDialog(this, "Failed to create item in database.");
+      } else {
+                AuctionServer.getInstance().startAuctionSession(item);
+          
+      }
         });
     }
 

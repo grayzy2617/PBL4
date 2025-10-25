@@ -1,10 +1,6 @@
 package Client;
 
-import Client.Node;
-import Database.DatabaseManager;
-import Client.Link;
 
-import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Random;
 import java.util.ArrayList;
@@ -22,6 +18,12 @@ public class NodeManager {
               for (Node node : allNodes) {
                   node.initializeBudget();
               }
+          }
+          if (allLinks == null) {
+              System.err.println("Error: Links list is null!!!");
+          }
+          else {
+              System.out.println("Loaded " + allLinks.size() + " links.");
           }
       }
         public static synchronized NodeManager getInstance() {
@@ -51,9 +53,10 @@ public class NodeManager {
     }
 
     public List<Link> getLinks(String nodeId) {
+        System.out.println(allLinks.size());
         List<Link> links = new ArrayList<>();
         for (Link link : allLinks) {
-            if (link.getIdNode().equals(nodeId)) {
+            if (link.getTx().equals(nodeId)) {
                 links.add(link);
             }
         }

@@ -15,7 +15,7 @@ public class NavigationManager {
     }
 
     public void showStatusView() {
-        JOptionPane.showMessageDialog(mainFrame, "Status View (implement as needed)");
+        new ShowStatusView();
     }
 
     public void showHistoryView() {

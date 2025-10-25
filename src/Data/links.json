@@ -1,5 +1,6 @@
 [
   {
+    "id": "LINK1",
     "tx": "SAT1",
     "rx": "GROUND1",
     "distanceKm": 800,
@@ -8,6 +9,7 @@
     "delta_priority": 0.98
   },
   {
+    "id": "LINK2",
     "tx": "SAT1",
     "rx": "SHIP1",
     "distanceKm": 1000,
@@ -16,6 +18,7 @@
     "delta_priority": 0.85
   },
   {
+    "id": "LINK3",
     "tx": "SAT1",
     "rx": "UAV1",
     "distanceKm": 600,
@@ -23,8 +26,8 @@
     "B_alloc": 3000000,
     "delta_priority": 0.8
   },
-
   {
+    "id": "LINK4",
     "tx": "SAT2",
     "rx": "GROUND2",
     "distanceKm": 850,
@@ -33,6 +36,7 @@
     "delta_priority": 0.95
   },
   {
+    "id": "LINK5",
     "tx": "SAT2",
     "rx": "SHIP2",
     "distanceKm": 1200,
@@ -41,6 +45,7 @@
     "delta_priority": 0.8
   },
   {
+    "id": "LINK6",
     "tx": "SAT2",
     "rx": "UAV2",
     "distanceKm": 650,
@@ -48,8 +53,8 @@
     "B_alloc": 2500000,
     "delta_priority": 0.75
   },
-
   {
+    "id": "LINK7",
     "tx": "UAV1",
     "rx": "GROUND1",
     "distanceKm": 50,
@@ -58,6 +63,7 @@
     "delta_priority": 0.7
   },
   {
+    "id": "LINK8",
     "tx": "UAV1",
     "rx": "SHIP1",
     "distanceKm": 120,
@@ -65,8 +71,17 @@
     "B_alloc": 800000,
     "delta_priority": 0.6
   },
-
   {
+    "id": "LINK16",
+    "tx": "UAV1",
+    "rx": "SHIP2",
+    "distanceKm": 150,
+    "frequencyMHz": 5000,
+    "B_alloc": 900000,
+    "delta_priority": 0.55
+  },
+  {
+    "id": "LINK9",
     "tx": "UAV2",
     "rx": "GROUND2",
     "distanceKm": 70,
@@ -75,10 +90,160 @@
     "delta_priority": 0.75
   },
   {
+    "id": "LINK10",
     "tx": "UAV2",
     "rx": "GROUND3",
     "distanceKm": 60,
     "frequencyMHz": 6000,
+    "B_alloc": 1000000,
+    "delta_priority": 0.5
+  },
+
+  {
+    "id": "LINK17",
+    "tx": "UAV2",
+    "rx": "SHIP1",
+    "distanceKm": 80,
+    "frequencyMHz": 6000,
+    "B_alloc": 850000,
+    "delta_priority": 0.65
+  },
+  {
+    "id": "LINK11",
+    "tx": "GROUND1",
+    "rx": "UAV1",
+    "distanceKm": 50,
+    "frequencyMHz": 5000,
+    "B_alloc": 1100000,
+    "delta_priority": 0.7
+  },
+  {
+    "id": "LINK18",
+    "tx": "GROUND1",
+    "rx": "UAV2",
+    "distanceKm": 50,
+    "frequencyMHz": 6000,
+    "B_alloc": 950000,
+    "delta_priority": 0.6
+  },
+  {
+    "id": "LINK19",
+    "tx": "GROUND1",
+    "rx": "SHIP1",
+    "distanceKm": 200,
+    "frequencyMHz": 7000,
+    "B_alloc": 1200000,
+    "delta_priority": 0.55
+  },
+
+  {
+    "id": "LINK12",
+    "tx": "GROUND2",
+    "rx": "UAV2",
+    "distanceKm": 70,
+    "frequencyMHz": 6000,
+    "B_alloc": 1600000,
+    "delta_priority": 0.75
+  },
+
+  {
+    "id": "LINK20",
+    "tx": "GROUND2",
+    "rx": "UAV1",
+    "distanceKm": 80,
+    "frequencyMHz": 5000,
+    "B_alloc": 1050000,
+    "delta_priority": 0.65
+  },
+  {
+    "id": "LINK21",
+    "tx": "GROUND2",
+    "rx": "SHIP2",
+    "distanceKm": 220,
+    "frequencyMHz": 7000,
+    "B_alloc": 1300000,
+    "delta_priority": 0.6
+  },
+
+  {
+    "id": "LINK13",
+    "tx": "SHIP1",
+    "rx": "SAT1",
+    "distanceKm": 1000,
+    "frequencyMHz": 12000,
+    "B_alloc": 1400000,
+    "delta_priority": 0.85
+  },
+  {
+    "id": "LINK22",
+    "tx": "SHIP1",
+    "rx": "UAV1",
+    "distanceKm": 120,
+    "frequencyMHz": 5000,
+    "B_alloc": 850000,
+    "delta_priority": 0.6
+  },
+  {
+    "id": "LINK23",
+    "tx": "SHIP1",
+    "rx": "UAV2",
+    "distanceKm": 80,
+    "frequencyMHz": 6000,
+    "B_alloc": 800000,
+    "delta_priority": 0.55
+  },
+  {
+    "id": "LINK14",
+    "tx": "SHIP2",
+    "rx": "SAT2",
+    "distanceKm": 1200,
+    "frequencyMHz": 14000,
+    "B_alloc": 1800000,
+    "delta_priority": 0.8
+  },
+  {
+    "id": "LINK24",
+    "tx": "SHIP2",
+    "rx": "UAV2",
+    "distanceKm": 150,
+    "frequencyMHz": 6000,
+    "B_alloc": 900000,
+    "delta_priority": 0.55
+  },
+  {
+    "id": "LINK25",
+    "tx": "SHIP2",
+    "rx": "UAV1",
+    "distanceKm": 120,
+    "frequencyMHz": 5000,
+    "B_alloc": 950000,
+    "delta_priority": 0.5
+  },
+  {
+    "id": "LINK15",
+    "tx": "GROUND3",
+    "rx": "UAV1",
+    "distanceKm": 120,
+    "frequencyMHz": 5000,
+    "B_alloc": 900000,
+    "delta_priority": 0.6
+  },
+  {
+    "id": "LINK26",
+    "tx": "GROUND3",
+    "rx": "UAV2",
+    "distanceKm": 60,
+    "frequencyMHz": 6000,
+    "B_alloc": 850000,
+    "delta_priority": 0.55
+  },
+
+  {
+    "id": "LINK27",
+    "tx": "GROUND3",
+    "rx": "SHIP1",
+    "distanceKm": 180,
+    "frequencyMHz": 7000,
     "B_alloc": 1000000,
     "delta_priority": 0.5
   }

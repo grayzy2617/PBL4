@@ -2,14 +2,21 @@ package Client;
 
 
 public class Link {
-    private String tx;
-    public String rx;
+    String id;
+    private String tx;// là  người gửi
+    public String rx;// là người nhận
     public double distanceKm;
     public double frequencyMHz;
-    public double B_alloc;
+    public double B_alloc;// băng thông được cấp phát
     private int priority;
     private String idNode;
-
+  
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
     public String getIdNode() {
         return idNode;
     }
