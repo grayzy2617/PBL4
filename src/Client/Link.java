@@ -8,7 +8,7 @@ public class Link {
     public double distanceKm;
     public double frequencyMHz;
     public double B_alloc;// băng thông được cấp phát
-    private int priority;
+    private double priority;
     private String idNode;
   
     public String getId() {
@@ -63,7 +63,7 @@ public class Link {
         this.B_alloc = B_alloc;
     }
 
-    public int getPriority() {
+    public double getPriority() {
         return priority;
     }
 
