@@ -6,7 +6,7 @@
     "distanceKm": 800,
     "frequencyMHz": 12000,
     "B_alloc": 20000000,
-    "delta_priority": 0.98
+    "priority": 0.98
   },
   {
     "id": "LINK2",
@@ -15,7 +15,7 @@
     "distanceKm": 1000,
     "frequencyMHz": 12000,
     "B_alloc": 1500000,
-    "delta_priority": 0.85
+    "priority": 0.85
   },
   {
     "id": "LINK3",
@@ -24,7 +24,7 @@
     "distanceKm": 600,
     "frequencyMHz": 12000,
     "B_alloc": 3000000,
-    "delta_priority": 0.8
+    "priority": 0.8
   },
   {
     "id": "LINK4",
@@ -33,7 +33,7 @@
     "distanceKm": 850,
     "frequencyMHz": 14000,
     "B_alloc": 25000000,
-    "delta_priority": 0.95
+    "priority": 0.95
   },
   {
     "id": "LINK5",
@@ -42,7 +42,7 @@
     "distanceKm": 1200,
     "frequencyMHz": 14000,
     "B_alloc": 2000000,
-    "delta_priority": 0.8
+    "priority": 0.8
   },
   {
     "id": "LINK6",
@@ -51,7 +51,7 @@
     "distanceKm": 650,
     "frequencyMHz": 14000,
     "B_alloc": 2500000,
-    "delta_priority": 0.75
+    "priority": 0.75
   },
   {
     "id": "LINK7",
@@ -60,7 +60,7 @@
     "distanceKm": 50,
     "frequencyMHz": 5000,
     "B_alloc": 1000000,
-    "delta_priority": 0.7
+    "priority": 0.7
   },
   {
     "id": "LINK8",
@@ -69,7 +69,7 @@
     "distanceKm": 120,
     "frequencyMHz": 5000,
     "B_alloc": 800000,
-    "delta_priority": 0.6
+    "priority": 0.6
   },
   {
     "id": "LINK16",
@@ -78,7 +78,7 @@
     "distanceKm": 150,
     "frequencyMHz": 5000,
     "B_alloc": 900000,
-    "delta_priority": 0.55
+    "priority": 0.55
   },
   {
     "id": "LINK9",
@@ -87,7 +87,7 @@
     "distanceKm": 70,
     "frequencyMHz": 6000,
     "B_alloc": 1500000,
-    "delta_priority": 0.75
+    "priority": 0.75
   },
   {
     "id": "LINK10",
@@ -96,7 +96,7 @@
     "distanceKm": 60,
     "frequencyMHz": 6000,
     "B_alloc": 1000000,
-    "delta_priority": 0.5
+    "priority": 0.5
   },
 
   {
@@ -106,7 +106,7 @@
     "distanceKm": 80,
     "frequencyMHz": 6000,
     "B_alloc": 850000,
-    "delta_priority": 0.65
+    "priority": 0.65
   },
   {
     "id": "LINK11",
@@ -115,7 +115,7 @@
     "distanceKm": 50,
     "frequencyMHz": 5000,
     "B_alloc": 1100000,
-    "delta_priority": 0.7
+    "priority": 0.7
   },
   {
     "id": "LINK18",
@@ -124,7 +124,7 @@
     "distanceKm": 50,
     "frequencyMHz": 6000,
     "B_alloc": 950000,
-    "delta_priority": 0.6
+    "priority": 0.6
   },
   {
     "id": "LINK19",
@@ -133,7 +133,7 @@
     "distanceKm": 200,
     "frequencyMHz": 7000,
     "B_alloc": 1200000,
-    "delta_priority": 0.55
+    "priority": 0.55
   },
 
   {
@@ -143,7 +143,7 @@
     "distanceKm": 70,
     "frequencyMHz": 6000,
     "B_alloc": 1600000,
-    "delta_priority": 0.75
+    "priority": 0.75
   },
 
   {
@@ -153,7 +153,7 @@
     "distanceKm": 80,
     "frequencyMHz": 5000,
     "B_alloc": 1050000,
-    "delta_priority": 0.65
+    "priority": 0.65
   },
   {
     "id": "LINK21",
@@ -162,7 +162,7 @@
     "distanceKm": 220,
     "frequencyMHz": 7000,
     "B_alloc": 1300000,
-    "delta_priority": 0.6
+    "priority": 0.6
   },
 
   {
@@ -172,7 +172,7 @@
     "distanceKm": 1000,
     "frequencyMHz": 12000,
     "B_alloc": 1400000,
-    "delta_priority": 0.85
+    "priority": 0.85
   },
   {
     "id": "LINK22",
@@ -181,7 +181,7 @@
     "distanceKm": 120,
     "frequencyMHz": 5000,
     "B_alloc": 850000,
-    "delta_priority": 0.6
+    "priority": 0.6
   },
   {
     "id": "LINK23",
@@ -190,7 +190,7 @@
     "distanceKm": 80,
     "frequencyMHz": 6000,
     "B_alloc": 800000,
-    "delta_priority": 0.55
+    "priority": 0.55
   },
   {
     "id": "LINK14",
@@ -199,7 +199,7 @@
     "distanceKm": 1200,
     "frequencyMHz": 14000,
     "B_alloc": 1800000,
-    "delta_priority": 0.8
+    "priority": 0.8
   },
   {
     "id": "LINK24",
@@ -208,7 +208,7 @@
     "distanceKm": 150,
     "frequencyMHz": 6000,
     "B_alloc": 900000,
-    "delta_priority": 0.55
+    "priority": 0.55
   },
   {
     "id": "LINK25",
@@ -217,7 +217,7 @@
     "distanceKm": 120,
     "frequencyMHz": 5000,
     "B_alloc": 950000,
-    "delta_priority": 0.5
+    "priority": 0.5
   },
   {
     "id": "LINK15",
@@ -226,7 +226,7 @@
     "distanceKm": 120,
     "frequencyMHz": 5000,
     "B_alloc": 900000,
-    "delta_priority": 0.6
+    "priority": 0.6
   },
   {
     "id": "LINK26",
@@ -235,7 +235,7 @@
     "distanceKm": 60,
     "frequencyMHz": 6000,
     "B_alloc": 850000,
-    "delta_priority": 0.55
+    "priority": 0.55
   },
 
   {
@@ -245,6 +245,6 @@
     "distanceKm": 180,
     "frequencyMHz": 7000,
     "B_alloc": 1000000,
-    "delta_priority": 0.5
+    "priority": 0.5
   }
 ]

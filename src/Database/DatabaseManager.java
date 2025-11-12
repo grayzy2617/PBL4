@@ -234,7 +234,19 @@ public class DatabaseManager {
         }
         return sessions;
     }
-
+    // cập nhật trạng thái is_active của phiên đấu giá
+    public boolean updateAuctionSessionStatus(String sessionId, boolean isActive) {
+        String sql = "UPDATE auctionsession SET is_active = ? WHERE id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setBoolean(1, isActive);
+            stmt.setString(2, sessionId);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0; // true nếu cập nhật thành công
+        } catch (SQLException e) {
+            Logger.getLogger(DatabaseManager.class.getName()).log(Level.SEVERE, null, e);
+            return false;
+        }
+    }
    
     public Item getItemById(String itemId) {
         String sql = "SELECT item_id, capacity, reserve_price FROM item WHERE item_id = ?";

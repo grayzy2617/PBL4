@@ -47,18 +47,21 @@ public class AuctionSession {
                 // nếu bị interrupt thì coi như cancel
                 return;
             }
-            // đánh dấu kết thúc
-            this.setActive(false);
+            this.isActive = 0; // kết thúc phiên đấu giá
+            Database.DatabaseManager.getInstance().updateAuctionSessionStatus(this.id, false);
             // lấy bid cao nhất từ DB
             Bid winner = Database.DatabaseManager.getInstance().getHighestBidForSession(this.id);
             if (winner != null) {
-                AuctionServer.getInstance().setCurrentCapacity(AuctionServer.getInstance().getCurrentCapacity() - this.item.getCapacity());
+
+                AuctionServer.getInstance()
+                        .setCurrentCapacity(AuctionServer.getInstance().getCurrentCapacity() - this.item.getCapacity());
                 AuctionServer.getInstance().setRevenue(AuctionServer.getInstance().getRevenue() + winner.getValue());
                 // thông báo kết quả đến UI
                 if (this.resultListener != null) {
                     this.resultListener.Update();
                     // notify UI of auction end
                     this.resultListener.onAuctionEnded(winner.getClientId(), winner.getValue());
+                     
                 }
                 else {
                     System.out.println("AuctionSession: resultListener is null");

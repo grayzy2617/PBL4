@@ -23,7 +23,7 @@ public class SessionDetailView extends JFrame {
     }
 
     private void initUI() {
-        String[] cols = {"Client_id", "tx", "rx", "distanceKm", "bid_amount"};
+        String[] cols = {"Client_id", "bid_amount"};
         model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -40,7 +40,8 @@ public class SessionDetailView extends JFrame {
         System.out.println("Bids for session " + sessionId + ": " + bids.size());
         for (Bid b : bids) {
             // tx/rx/distance not available from bid table directly; leave empty for caller to fill
-            model.addRow(new Object[]{b.getClientId(), "", "", "", b.getValue()});
+
+            model.addRow(new Object[]{b.getClientId(), b.getValue()});
         }
     }
 }

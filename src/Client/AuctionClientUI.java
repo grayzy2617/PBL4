@@ -31,7 +31,6 @@ private DefaultTableModel bidTableModel;
 private JButton btnSendBid;
 
 private JPanel topPanel;
-private JPanel centerPanel;
 private JPanel bidPanel;
 
 
@@ -56,27 +55,35 @@ private void initComponents() {
 
 // ====== Top Panel (Resources - Participants - Budget) ======
 private void makeTopPanel() {
-    topPanel = new JPanel(new BorderLayout());
+    topPanel = new JPanel(new GridLayout(1,4,12,0));
     topPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+
+    JLabel lbNodeId = new JLabel("Node: " + (client.getNode() != null ? client.getNode().getId() : "-"));
+    lbNodeId.setFont(lbNodeId.getFont().deriveFont(Font.BOLD, 14f));
+    lbNodeId.setHorizontalAlignment(SwingConstants.LEFT);
+    topPanel.add(lbNodeId);
 
     lbResourcesHeld = new JLabel("Resources: " + client.getNode().getAcquiredResources() + " Mbps");
     lbResourcesHeld.setFont(lbResourcesHeld.getFont().deriveFont(Font.BOLD, 14f));
-    topPanel.add(lbResourcesHeld, BorderLayout.WEST);
+    lbResourcesHeld.setHorizontalAlignment(SwingConstants.CENTER);
+    topPanel.add(lbResourcesHeld);
 
-    lbParticipants = new JLabel("Participants: 0", SwingConstants.CENTER);
+    lbParticipants = new JLabel("Participants: 0");
     lbParticipants.setFont(lbParticipants.getFont().deriveFont(Font.BOLD, 14f));
-    topPanel.add(lbParticipants, BorderLayout.CENTER);
+    lbParticipants.setHorizontalAlignment(SwingConstants.CENTER);
+    topPanel.add(lbParticipants);
 
     lbBudget = new JLabel("Budget: $" + client.getNode().getCurrentBudget());
     lbBudget.setFont(lbBudget.getFont().deriveFont(Font.BOLD, 14f));
-    topPanel.add(lbBudget, BorderLayout.EAST);
+    lbBudget.setHorizontalAlignment(SwingConstants.RIGHT);
+    topPanel.add(lbBudget);
 
     add(topPanel, BorderLayout.NORTH);
 }
 
 // ====== Bảng đấu giá chính ======
 private void makeAuctionTablePanel() {
-    String[] columnNames = {"ItemId", "Capacity", "ReservePrice", "Signal", "Time Left", "Tham gia"};
+    String[] columnNames = {"ItemId", "Capacity", "ReservePrice", "Suitable ", "Time Left", "Tham gia"};
     auctionTableModel = new DefaultTableModel(columnNames, 0) {
         @Override
         public boolean isCellEditable(int row, int column) {
@@ -95,7 +102,11 @@ private void makeAuctionTablePanel() {
     scrollPane.setPreferredSize(new Dimension(550, 180));
     add(scrollPane, BorderLayout.CENTER);
 }
-
+private void addAuctionRow(String itemId, Double capacity, String reservePrice, String suitability) {
+    Object[] row = {itemId, capacity, reservePrice, suitability, "30", "Tham gia"};
+    auctionTableModel.addRow(row);
+    startCountdownTimer(auctionTableModel.getRowCount() - 1);
+}
 private void initWindow() {
     setTitle("Auction Client");
     setSize(640, 480);
@@ -118,8 +129,10 @@ public void onNewAuction(AuctionMessage message) {
     Integer participants = (Integer) message.getParam("participants");
     this.participants = participants;
         lbParticipants.setText("Participants: " + String.valueOf(participants));
-    System.out.println(participants);
-    addAuctionRow(itemId, capacity, reservePrice);
+        System.out.println(participants);
+        boolean suitable = isSuitable();
+    String suitability = suitable ? "Strong" : "Weak";
+    addAuctionRow(itemId, capacity, reservePrice, suitability);
 }
 
 @Override
@@ -150,11 +163,7 @@ public void onAuctionResult(AuctionMessage message) {
             JOptionPane.INFORMATION_MESSAGE);
 
 }
-private void addAuctionRow(String itemId, Double capacity, String reservePrice ) {
-    Object[] row = {itemId, capacity, reservePrice, "Strong", "30", "Tham gia"};
-    auctionTableModel.addRow(row);
-    startCountdownTimer(auctionTableModel.getRowCount() - 1);
-}
+
 
 private void startCountdownTimer(int rowIndex) {
     final int[] timeLeft = {30};
@@ -230,25 +239,24 @@ private void showBidPanel() {
 
    System.out.println(client.getNode().getId());
    List<Link> myLinks = NodeManager.getInstance().getLinks(client.getNode().getId());
-   System.out.println(myLinks.size());
    for (Link link : myLinks) {
        Double Latency = Utility.computeLatency(link.getDistanceKm(), client.getNode().getTproc());
        Double SNR = Utility.computeSNR(client.getNode().getPt(), client.getNode().getGt(), client.getNode().getGr(),
                link.getDistanceKm(), link.getFrequencyMHz(), client.getNode().getT(), link.getB_alloc());
-       String signal = String.format("%.4f", Latency*1000) + " ms, SNR: " + String.format("%.2f", SNR) + " dB";
+       String signal = String.format("%.4f", Latency * 1000) + " ms, SNR: " + String.format("%.2f", SNR) + " dB";
        String value = String.valueOf(Utility.computeValue(SNR, Latency));
-       String bid = String.valueOf(Utility.calculateBid(Double.valueOf(value),this.participants,client.getNode().getCurrentBudget(),client.getNode().getBudget_max(), link.getPriority(), this.reservePrice));
-       bidTableModel.addRow(new Object[]{
-                link.getId(),
-                link.getTx(),
-                link.getRx(),
-                 signal,
+       String bid = String.valueOf(
+               Utility.calculateBid(Double.valueOf(value), this.participants, client.getNode().getCurrentBudget(),
+                       client.getNode().getBudget_max(), link.getPriority(), this.reservePrice));
+       bidTableModel.addRow(new Object[] {
+               link.getId(),
+               link.getTx(),
+               link.getRx(),
+               signal,
                value,
-                bid
-         });
-
-}
-     
+               bid
+       });
+   }
     JScrollPane bidScroll = new JScrollPane(bidTable);
     bidScroll.setPreferredSize(new Dimension(550, 120));
     bidPanel.add(bidScroll, BorderLayout.CENTER);
@@ -266,17 +274,46 @@ private void showBidPanel() {
     repaint();
 }
 
+public boolean isSuitable() {
+    List<Link> myLinks = NodeManager.getInstance().getLinks(client.getNode().getId());
+    for (Link link : myLinks) {
+        Double Latency = Utility.computeLatency(link.getDistanceKm(), client.getNode().getTproc());
+        Double SNR = Utility.computeSNR(client.getNode().getPt(), client.getNode().getGt(), client.getNode().getGr(),
+                link.getDistanceKm(), link.getFrequencyMHz(), client.getNode().getT(), link.getB_alloc());
+        String signal = String.format("%.4f", Latency * 1000) + " ms, SNR: " + String.format("%.2f", SNR) + " dB";
+        String value = String.valueOf(Utility.computeValue(SNR, Latency));
+        String bid = String.valueOf(
+                Utility.calculateBid(Double.valueOf(value), this.participants, client.getNode().getCurrentBudget(),
+                        client.getNode().getBudget_max(), link.getPriority(), this.reservePrice));
+        double bidAmount = Double.parseDouble(bid);
+     if (bidAmount > client.getNode().getCurrentBudget()) {
+        return false;
+        
+    }
+    }
+    // nếu cái bid mà nó lớn hơn ngân sách hiện tại thì không suitable
+  
+    return true;
+}
+
 private void handleSendBid() {
     int selectedRow = bidTable.getSelectedRow();
     if (selectedRow == -1) {
         JOptionPane.showMessageDialog(this, "Hãy chọn 1 dòng để gửi bid!");
         return;
     }
-
+    
     String bidText = (String) bidTableModel.getValueAt(selectedRow, 5);
     String linkId = (String) bidTableModel.getValueAt(selectedRow, 0);
     try {
         double bidAmount = Double.parseDouble(bidText);
+          
+if(bidAmount > client.getNode().getCurrentBudget()) {
+            JOptionPane.showMessageDialog(this, "Bid vượt quá ngân sách hiện tại!", "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+            return; 
+        }
+         
         this.bidAmount = bidAmount;
             client.sendBid(bidAmount, linkId , this.idSession);
             JOptionPane.showMessageDialog(this, "Đã gửi bid thành công!", "Thông báo",
